@@ -54,8 +54,6 @@ describe('configuredFormatter testing', () => {
     describe('json output (info)', () => {
         beforeEach(() => {
             spy = jest.fn((info) => {
-                expect(spy).toHaveBeenCalled();
-
                 const sym = Symbol.for('message');
                 const testMsg = info[sym];
                 const parsedTestMsg = JSON.parse(testMsg);
