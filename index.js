@@ -7,18 +7,23 @@ const {
     printf, timestamp, combine, colorize
 } = format;
 
-const consoleFormat = printf(info => `${info.timestamp} ${info.level}: ${info.message}`);
-
-const jsonFormat = printf((info, opts) => {
+const addMetaFormat = format((info, opts) => {
     const options = _.defaults(
+        opts,
         {
             name: 'application-logger',
+            hostname: os.hostname(),
+            node_env: process.env.NODE_ENV,
             service: '',
             version: ''
-        },
-        opts
+        }
     );
+    return _.defaults(info, options);
+});
 
+const consoleFormat = printf(info => `${info.timestamp} ${info.level}: ${info.message}`);
+
+const jsonFormat = printf((info) => {
     function parseInfo(infoObj) {
         return _.omit(infoObj, [
             'err',
@@ -27,40 +32,47 @@ const jsonFormat = printf((info, opts) => {
             'logger',
             'message',
             'meta',
+            'name',
+            'node_env',
             'service',
             'stack',
             'timestamp',
+            'typeFormat',
+            'version'
         ]);
     }
+
     return JSON.stringify({
-        service: options.service,
-        logger: options.name,
-        hostname: os.hostname(),
+        service: info.service || '',
+        logger: info.name || 'application-logger',
+        hostname: info.hostname || '',
         level: info.level,
         msg: info.message,
         meta: {
             service: {
-                version: options.version,
+                version: info.version || '',
+                node_env: info.node_env || ''
             },
             logger: {
-                time: info.timestamp,
+                time: info.timestamp || '',
             },
             event: parseInfo(info),
         },
         err: {
             err: info.err,
-            stack: info.stack,
-        },
+            message: info.message,
+            name: info.name,
+            stack: info.stack
+        }
     });
 });
 
 /**
  * Configured formatter to check for env and key words (console and json)
- * @param {Object} info
  * @param {Object} options
  * @return {string} format
  */
-function configuredFormatter(info, options) {
+function configuredFormatter(options) {
     let { typeFormat } = options;
     if (typeFormat === undefined) {
         if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') {
@@ -69,9 +81,11 @@ function configuredFormatter(info, options) {
             typeFormat = 'json';
         }
     }
+
     if (typeFormat === 'json') {
         return combine(
             timestamp(),
+            addMetaFormat(options),
             jsonFormat
         );
     }
@@ -85,4 +99,9 @@ function configuredFormatter(info, options) {
     throw new Error(`${typeFormat} is not json or console.`);
 }
 
-module.exports = { configuredFormatter, jsonFormat, consoleFormat };
+module.exports = {
+    addMetaFormat,
+    configuredFormatter,
+    consoleFormat,
+    jsonFormat
+};
