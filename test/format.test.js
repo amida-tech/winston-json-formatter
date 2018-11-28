@@ -6,11 +6,7 @@ import { configuredFormatter } from '../index'; // eslint-disable-line import/na
 
 const { createLogger } = winston;
 
-const options = {
-    service: 'test-service',
-    name: 'test-name',
-    version: 'test-version',
-};
+let options;
 let logger;
 let spy;
 
@@ -27,6 +23,12 @@ beforeEach(() => {
             new winston.transports.Console({ silent: true })
         ]
     });
+
+    options = {
+        service: 'test-service',
+        name: 'test-name',
+        version: 'test-version',
+    };
 });
 
 describe('configuredFormatter testing', () => {

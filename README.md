@@ -12,6 +12,7 @@ const { createLogger, transports } = winston;
 // Create Logger and configure options.
 
 const logger = createLogger({ 
+    level: 'silly',
     transports: [
         new (transports.Console)(),
     ],
@@ -39,7 +40,27 @@ logger.silly('message');
 ###Json logging
 ```javascript
 > logger.info('message', {foo: 'bar', baz: 'qux'});
-{"service":"test-service","logger":"Winston-JSON-Formatter","hostname":"host","level":"info","msg":"message","meta":{"service":{"version":"1.0.0","node_env":""},"logger":{"time":"2018-11-28T02:52:06.700Z"},"event":{"foo":"bar","baz":"qux"}},"err":{}}
+{
+  "service": "test-service",
+  "logger": "Winston-JSON-Formatter",
+  "hostname": "host",
+  "level": "info",
+  "msg": "message",
+  "meta": {
+    "service": {
+      "version": "1.0.0",
+      "node_env": ""
+    },
+    "logger": {
+      "time": "2018-11-28T02:52:06.700Z"
+    },
+    "event": {
+      "foo": "bar",
+      "baz": "qux"
+    }
+  },
+  "err": {}
+}
 ```
 
 ###Console logging
@@ -49,4 +70,5 @@ logger.silly('message');
 ```bash
 yarn install
 yarn test
+yarn test --coverage
 ```
