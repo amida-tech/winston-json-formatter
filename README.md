@@ -4,10 +4,8 @@ A json and console formatter for [winston@3](https://github.com/winstonjs/winsto
 ## Quickstart:
 
 ```javascript
-import winston from 'winston';
-import { configuredFormatter } from 'winston-json-formatter';
-
-const { createLogger, transports } = winston;
+const { createLogger, transports } = require('winston');
+const { configuredFormatter } = require('winston-json-formatter');
 
 // Create Logger and configure options.
 
@@ -70,5 +68,5 @@ logger.silly('message');
 ```bash
 yarn install
 yarn test
-yarn test --coverage
+yarn test:coverage
 ```

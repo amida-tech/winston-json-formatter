@@ -2,7 +2,7 @@
 
 import winston from 'winston';
 import SpyTransport from '@chrisalderson/winston-spy'; // eslint-disable-line no-unused-vars
-import { configuredFormatter } from '../index'; // eslint-disable-line import/named
+import { configuredFormatter } from '../lib'; // eslint-disable-line import/named
 
 const { createLogger } = winston;
 

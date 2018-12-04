@@ -72,7 +72,7 @@ const jsonFormat = printf((info) => {
  * @param {Object} options
  * @return {string} format
  */
-function configuredFormatter(options) {
+function configuredFormatter(options = {}) {
     let { typeFormat } = options;
     if (typeFormat === undefined) {
         if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') {

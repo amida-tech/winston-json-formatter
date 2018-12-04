@@ -1,74 +1,75 @@
 {
-    "name": "winston-json-formatter",
-    "version": "1.0.0",
-    "description": "A Winston JSON Formatter",
-    "main": "index.js",
-    "scripts": {
-        "build": "babel index.js --out-dir dist",
-        "lint": "eslint index.js test/",
-        "test": "jest"
-    },
-    "keywords": [
-        "logging"
-    ],
-    "engines": {
-        "node": ">=8.10.0",
-        "npm": ">=5.6.0",
-        "yarn": ">=1.5.1"
-    },
-    "author": "Morgan Peters <morgan@amida.com>",
-    "contributors": [
-        {
-            "name": "Ryan Harrison",
-            "email": "ryan@amida.com"
-        }
-    ],
-    "license": "MIT",
-    "dependencies": {
-        "lodash": "^4.17.11",
-        "os": "^0.1.1",
-        "winston": "^3.1.0"
-    },
-    "devDependencies": {
-        "@babel/cli": "^7.1.5",
-        "@babel/core": "^7.1.6",
-        "@babel/node": "^7.0.0",
-        "@babel/preset-env": "^7.1.6",
-        "@chrisalderson/winston-spy": "^1.0.2",
-        "babel-core": "^7.0.0-bridge.0",
-        "babel-jest": "^23.6.0",
-        "eslint": "^5.9.0",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.14.0",
-        "jest": "^23.6.0",
-        "regenerator-runtime": "^0.13.1",
-        "sinon": "^7.1.1"
-    },
-    "babel": {
-        "presets": [
-            [
-                "@babel/preset-env",
-                {
-                    "modules": "commonjs",
-                    "targets": {
-                        "node": "current"
-                    }
-                }
-            ]
-        ]
-    },
-    "jest": {
-        "automock": false,
-        "bail": false,
-        "verbose": true,
-        "testMatch": [
-            "**/Tests/**/*.js",
-            "**/?(*.)(spec|test|integration).js?(x)"
-        ],
-        "modulePathIgnorePatterns": [
-            "/node_modules/",
-            "/coverage/",
-            "/dist/"
-        ]
+  "name": "winston-json-formatter",
+  "description": "A Winston JSON Formatter",
+  "main": "lib/index.js",
+  "repository": "amida-tech/winston-json-formatter",
+  "license": "MIT",
+  "version": "0.9.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "babel src --out-dir lib",
+    "clean": "rimraf coverage lib",
+    "lint": "eslint src/ test/",
+    "prepublish": "yarn build",
+    "test": "yarn install && jest",
+    "test:coverage": "yarn test --coverage"
+  },
+  "keywords": [
+    "formatter",
+    "logging",
+    "winston"
+  ],
+  "engines": {
+    "node": ">=8.10.0",
+    "npm": ">=5.6.0",
+    "yarn": ">=1.5.1"
+  },
+  "author": {
+    "name": "Morgan Peters",
+    "email": "morgan@amida.com"
+  },
+  "contributors": [
+    {
+      "name": "Ryan Harrison",
+      "email": "ryan@amida.com"
     }
+  ],
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "os": "^0.1.1",
+    "winston": "^3.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.6",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.1.6",
+    "@chrisalderson/winston-spy": "^1.0.2",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "jest": "^23.6.0",
+    "npm-prepublish": "^1.2.3",
+    "regenerator-runtime": "^0.13.1",
+    "rimraf": "^2.6.2",
+    "sinon": "^7.1.1"
+  },
+  "jest": {
+    "automock": false,
+    "bail": false,
+    "verbose": true,
+    "testMatch": [
+      "**/Tests/**/*.js",
+      "**/?(*.)(spec|test|integration).js?(x)"
+    ],
+    "modulePathIgnorePatterns": [
+      "/node_modules/",
+      "/coverage/",
+      "/dist/"
+    ]
+  }
 }
