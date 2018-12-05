@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.9.0] -- 2018-12-05
 JSON formater for winston with metadata (e.g. service. hostname, version etc.).
 
 Output format:
