@@ -4,14 +4,13 @@ A json and console formatter for [winston@3](https://github.com/winstonjs/winsto
 ## Quickstart:
 
 ```javascript
-import winston from 'winston';
-import { configuredFormatter } from 'winston-json-formatter';
-
-const { createLogger, transports } = winston;
+const { createLogger, transports } = require('winston');
+const { configuredFormatter } = require('winston-json-formatter');
 
 // Create Logger and configure options.
 
 const logger = createLogger({ 
+    level: 'silly',
     transports: [
         new (transports.Console)(),
     ],
@@ -24,7 +23,7 @@ const options = {
 };
 
 // set winston logger format and print logs.
-logger.format = configuredFormatter({}, options);
+logger.format = configuredFormatter(options);
 
 logger.error('message');
 logger.warn('message');
@@ -37,7 +36,37 @@ logger.silly('message');
 ## Output: 
 
 ###Json logging
-`{"service":"","logger":"winston-json-configuredFormatter","hostname":"","level":"error","msg":"message","meta":{"service":{"version":""},"logger":{"time":"2018-11-27T13:44:28.023Z"},"event":{}},"err":{}}`
+```javascript
+> logger.info('message', {foo: 'bar', baz: 'qux'});
+{
+  "service": "test-service",
+  "logger": "Winston-JSON-Formatter",
+  "hostname": "host",
+  "level": "info",
+  "msg": "message",
+  "meta": {
+    "service": {
+      "version": "1.0.0",
+      "node_env": ""
+    },
+    "logger": {
+      "time": "2018-11-28T02:52:06.700Z"
+    },
+    "event": {
+      "foo": "bar",
+      "baz": "qux"
+    }
+  },
+  "err": {}
+}
+```
 
 ###Console logging
-![console log style](console-log-example.png)
+![console log style](docs/console-log-example.png)
+
+## Test
+```bash
+yarn install
+yarn test
+yarn test:coverage
+```

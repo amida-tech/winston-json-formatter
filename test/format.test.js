@@ -2,98 +2,112 @@
 
 import winston from 'winston';
 import SpyTransport from '@chrisalderson/winston-spy'; // eslint-disable-line no-unused-vars
-import { configuredFormatter } from '../index'; // eslint-disable-line import/named
+import { configuredFormatter } from '../lib'; // eslint-disable-line import/named
 
 const { createLogger } = winston;
 
-const options = {
-    service: 'test-service',
-    name: 'test-name',
-    version: 'test-version',
-};
+let options;
 let logger;
 let spy;
 
-function testLog(testOptions, testSpy) {
-    logger.format = configuredFormatter({}, testOptions);
-    logger.error('message');
+function testLoggerInfo(testOptions, testSpy) {
+    logger.format = configuredFormatter(testOptions);
+    logger.info('message', { foo: 'bar' });
     expect(testSpy).toHaveBeenCalled();
 }
 
 beforeEach(() => {
     logger = createLogger({
-        level: 'silly'
+        level: 'silly',
+        transports: [
+            new winston.transports.Console({ silent: true })
+        ]
     });
+
+    options = {
+        service: 'test-service',
+        name: 'test-name',
+        version: 'test-version',
+    };
 });
 
 describe('configuredFormatter testing', () => {
     describe('console output', () => {
         beforeEach(() => {
-            // spy to check output
             spy = jest.fn((info) => {
                 const sym = Symbol.for('message');
-                const testMess = info[sym];
-                expect(testMess).toEqual(`${info.timestamp} ${info.level}: ${info.message}`);
+                const testMsg = info[sym];
+                expect(testMsg).toEqual(`${info.timestamp} ${info.level}: ${info.message}`);
             });
             logger.add(new winston.transports.SpyTransport({ spy }));
         });
         test('it passes console format check', (done) => {
             options.typeFormat = 'console';
-            testLog(options, spy);
+            testLoggerInfo(options, spy);
             done();
         });
         test('it checks NODE_ENV for development and sets to console', (done) => {
             process.env.NODE_ENV = 'dev';
-            testLog(options, spy);
+            testLoggerInfo(options, spy);
             done();
         });
     });
-    describe('json output', () => {
+
+    describe('json output (info)', () => {
         beforeEach(() => {
-            // spy to check output
             spy = jest.fn((info) => {
                 const sym = Symbol.for('message');
-                const testMess = info[sym];
-                const parsedTestMess = JSON.parse(testMess);
-                expect(parsedTestMess.msg).toEqual('message');
-                // expect(parsedTestMess.service).toEqual(options.service);
-                // expect(parsedTestMess.logger).toEqual(options.name);
-                expect(parsedTestMess.level).toEqual('error');
+                const testMsg = info[sym];
+                const parsedTestMsg = JSON.parse(testMsg);
+
+                expect(parsedTestMsg.level).toEqual('info');
+                expect(parsedTestMsg.msg).toEqual('message');
+                expect(parsedTestMsg.service).toEqual(options.service);
+                expect(parsedTestMsg.logger).toEqual(options.name);
+                expect(parsedTestMsg.meta.service.version).toEqual(options.version);
+                expect(parsedTestMsg.meta.event.foo).toEqual('bar');
             });
             logger.add(new winston.transports.SpyTransport({ spy }));
         });
         test('it passes json format check', (done) => {
             options.typeFormat = 'json';
-            testLog(options, spy);
+            testLoggerInfo(options, spy);
             done();
         });
         test('it checks NODE_ENV for other', (done) => {
             process.env.NODE_ENV = 'test';
-            testLog(options, spy);
+            testLoggerInfo(options, spy);
             done();
         });
-    });
-    test('error should appear in message', (done) => {
-        const error = new Error('err');
-        spy = jest.fn((info) => {
-            const sym = Symbol.for('message');
-            const testMess = info[sym];
-            const parsedTestMess = JSON.parse(testMess);
-            expect(parsedTestMess.err.stack).toEqual(error.stack);
+        test('it errors when typeFormat is incorrect', (done) => {
+            try {
+                options.typeFormat = 'test';
+                testLoggerInfo(options, spy);
+            } catch (e) {
+                expect(e.message).toBe('test is not json or console.');
+                done();
+            }
         });
-        logger.add(new winston.transports.SpyTransport({ spy }));
-        logger.format = configuredFormatter({}, options);
-        logger.error(error);
-        expect(spy).toHaveBeenCalled();
-        done();
     });
-    test('it errors when typeFormat is incorrect', (done) => {
-        try {
-            options.typeFormat = 'test';
-            testLog(options, spy);
-        } catch (e) {
-            expect(e.message).toBe('test is not json or console.');
+
+    describe('json output (error)', () => {
+        beforeEach(() => {
+            spy = jest.fn((info) => {
+                const sym = Symbol.for('message');
+                const testMsg = info[sym];
+                const parsedTestMess = JSON.parse(testMsg);
+                expect(parsedTestMess.err.stack).toEqual(expect.stringMatching('Error: '));
+            });
+            logger.add(new winston.transports.SpyTransport({ spy }));
+        });
+        test('error should appear in message', (done) => {
+            options.typeFormat = 'json';
+            logger.format = configuredFormatter(options);
+
+            const error = new Error('err');
+            logger.error(error);
+            expect(spy).toHaveBeenCalled();
             done();
-        }
+        });
     });
 });
