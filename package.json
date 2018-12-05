@@ -13,7 +13,7 @@
     "clean": "rimraf coverage lib",
     "lint": "eslint src/ test/",
     "prepublish": "yarn build",
-    "test": "snyk test && yarn install && jest",
+    "test": "yarn install && jest",
     "test:coverage": "yarn test --coverage"
   },
   "keywords": [
@@ -56,8 +56,7 @@
     "npm-prepublish": "^1.2.3",
     "regenerator-runtime": "^0.13.1",
     "rimraf": "^2.6.2",
-    "sinon": "^7.1.1",
-    "snyk": "^1.115.0"
+    "sinon": "^7.1.1"
   },
   "jest": {
     "automock": false,
