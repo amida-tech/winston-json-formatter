@@ -38,9 +38,9 @@ logger.debug('message');
 logger.silly('message');
 ```
 
-## Output: 
+## Output
 
-###Json logging
+### Json logging
 ```javascript
 > logger.info('message', {foo: 'bar', baz: 'qux'});
 {
@@ -66,8 +66,16 @@ logger.silly('message');
 }
 ```
 
-###Console logging
+### Console logging
 ![console log style](docs/console-log-example.png)
+
+## Configuration
+
+- ENV
+  * `NODE_ENV=dev` || `NODE_ENV=development` => `options.typeFormat=console`
+  * Otherwise, `options.typeFormat=json` (default)
+- options
+  * `options.typeFormat` (Default: json) [Enum: console, json]
 
 ## Test
 ```bash
