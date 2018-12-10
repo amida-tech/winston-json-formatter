@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.9.1] -- 2018-12-10
 - Added repo badging (npm, snyk, david-dm)
 
 
