@@ -1,3 +1,8 @@
+[![npm (tag)](https://img.shields.io/npm/v/winston-json-formatter/latest.svg)](https://www.npmjs.com/package/winston-json-formatter)
+[![Known Vulnerabilities](https://snyk.io/test/npm/winston-json-formatter/badge.svg)](https://snyk.io/test/npm/winston-json-formatter)
+[![dependencies Status](https://david-dm.org/amida-tech/winston-json-formatter/status.svg)](https://david-dm.org/amida-tech/winston-json-formatter)
+[![devDependencies Status](https://david-dm.org/amida-tech/winston-json-formatter/dev-status.svg)](https://david-dm.org/amida-tech/winston-json-formatter?type=dev)
+
 # Winston JSON Formatter
 A json and console formatter for [winston@3](https://github.com/winstonjs/winston).
 
@@ -33,9 +38,9 @@ logger.debug('message');
 logger.silly('message');
 ```
 
-## Output: 
+## Output
 
-###Json logging
+### Json logging
 ```javascript
 > logger.info('message', {foo: 'bar', baz: 'qux'});
 {
@@ -61,8 +66,16 @@ logger.silly('message');
 }
 ```
 
-###Console logging
+### Console logging
 ![console log style](docs/console-log-example.png)
+
+## Configuration
+
+- ENV
+  * `NODE_ENV=dev` || `NODE_ENV=development` => `options.typeFormat=console`
+  * Otherwise, `options.typeFormat=json` (default)
+- options
+  * `options.typeFormat` (Default: json) [Enum: console, json]
 
 ## Test
 ```bash
