@@ -1,6 +1,9 @@
 # CHANGELOG
 
 ## [Unreleased]
+
+
+## [0.9.2] -- 2018-12-11
 ### Changed
 - Renamed `options.name` --> `options.logger`
 - `err` includes `err.name` and `err.stack`
