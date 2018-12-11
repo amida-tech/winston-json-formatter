@@ -1,6 +1,12 @@
 # CHANGELOG
 
 ## [Unreleased]
+### Changed
+- Renamed `options.name` --> `options.logger`
+- `err` includes `err.name` and `err.stack`
+
+
+## [0.9.1] -- 2018-12-10
 - Added repo badging (npm, snyk, david-dm)
 
 

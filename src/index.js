@@ -11,8 +11,8 @@ const addMetaFormat = format((info, opts) => {
     const options = _.defaults(
         opts,
         {
-            name: 'application-logger',
             hostname: os.hostname(),
+            logger: 'application-logger',
             node_env: process.env.NODE_ENV,
             service: '',
             version: ''
@@ -44,7 +44,7 @@ const jsonFormat = printf((info) => {
 
     return JSON.stringify({
         service: info.service || '',
-        logger: info.name || 'application-logger',
+        logger: info.logger || 'application-logger',
         hostname: info.hostname || '',
         level: info.level,
         msg: info.message,
@@ -59,8 +59,6 @@ const jsonFormat = printf((info) => {
             event: parseInfo(info),
         },
         err: {
-            err: info.err,
-            message: info.message,
             name: info.name,
             stack: info.stack
         }

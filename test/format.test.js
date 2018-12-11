@@ -26,7 +26,7 @@ beforeEach(() => {
 
     options = {
         service: 'test-service',
-        name: 'test-name',
+        logger: 'test-logger',
         version: 'test-version',
     };
 });
@@ -63,7 +63,7 @@ describe('configuredFormatter testing', () => {
                 expect(parsedTestMsg.level).toEqual('info');
                 expect(parsedTestMsg.msg).toEqual('message');
                 expect(parsedTestMsg.service).toEqual(options.service);
-                expect(parsedTestMsg.logger).toEqual(options.name);
+                expect(parsedTestMsg.logger).toEqual(options.logger);
                 expect(parsedTestMsg.meta.service.version).toEqual(options.version);
                 expect(parsedTestMsg.meta.event.foo).toEqual('bar');
             });
