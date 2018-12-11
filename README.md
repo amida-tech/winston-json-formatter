@@ -22,7 +22,7 @@ const logger = createLogger({
 });
 const options = { 
     service: 'test-service', 
-    name: 'Winston-JSON-Formatter', 
+    logger: 'Winston-JSON-Formatter',
     version: '1.0.0', 
     typeFormat: 'json'
 };
@@ -30,12 +30,17 @@ const options = {
 // set winston logger format and print logs.
 logger.format = configuredFormatter(options);
 
+// Availale log levels
 logger.error('message');
 logger.warn('message');
 logger.info('message');
 logger.verbose('message');
 logger.debug('message');
 logger.silly('message');
+
+// Error Objects can be logged directly
+err = new Error('Heroic BSoD')
+logger.error(err)
 ```
 
 ## Output
@@ -70,12 +75,18 @@ logger.silly('message');
 ![console log style](docs/console-log-example.png)
 
 ## Configuration
+ENV
+- `NODE_ENV=dev` || `NODE_ENV=development` => `options.typeFormat=console`
+- Otherwise, `options.typeFormat=json` (default)
 
-- ENV
-  * `NODE_ENV=dev` || `NODE_ENV=development` => `options.typeFormat=console`
-  * Otherwise, `options.typeFormat=json` (default)
-- options
-  * `options.typeFormat` (Default: json) [Enum: console, json]
+| Option               | Default                       | Type                    |
+| -------------------- | ----------------------------- | ----------------------- |
+| `options.typeFormat` | Default: 'json'               | Enum: 'console', 'json' |
+| `options.hostname`   | Default: `os.hostname()`      | String                  |
+| `options.logger`     | Default: 'application-logger' | String                  |
+| `options.node_env`   | Default: `ENV NODE_ENV`       | String                  |
+| `options.service`    |                               | String                  |
+| `options.version`    |                               | String                  |
 
 ## Test
 ```bash
