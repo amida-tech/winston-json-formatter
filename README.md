@@ -2,6 +2,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/npm/winston-json-formatter/badge.svg)](https://snyk.io/test/npm/winston-json-formatter)
 [![dependencies Status](https://david-dm.org/amida-tech/winston-json-formatter/status.svg)](https://david-dm.org/amida-tech/winston-json-formatter)
 [![devDependencies Status](https://david-dm.org/amida-tech/winston-json-formatter/dev-status.svg)](https://david-dm.org/amida-tech/winston-json-formatter?type=dev)
+[![Jenkins CI](https://jenkins.amida.com/job/Winston%20JSON%20Formatter%20Tests/badge/icon)](https://jenkins.amida.com/job/Winston%20JSON%20Formatter%20Tests/)
 
 # Winston JSON Formatter
 A json and console formatter for [winston@3](https://github.com/winstonjs/winston).
