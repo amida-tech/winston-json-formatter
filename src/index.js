@@ -1,6 +1,7 @@
 import winston from 'winston';
 import _ from 'lodash';
 import os from 'os';
+import util from 'util';
 
 const { format } = winston;
 const {
@@ -21,28 +22,17 @@ const addMetaFormat = format((info, opts) => {
     return _.defaults(info, options);
 });
 
-const consoleFormat = printf(info => `${info.timestamp} ${info.level}: ${info.message}`);
+const consoleFormat = printf(info => util.format(
+    '%s %s %s %s %s',
+    info.timestamp,
+    info.level,
+    (typeof info.message === 'string') ? info.message : `\n${JSON.stringify(info.message, null, 2)}`,
+    (info.stack) ? `\n${info.stack}` : '',
+    (!_.isEmpty(parseInfo(info))) ? `\n${JSON.stringify(parseInfo(info), null, 2)}` : ''
+));
 
 const jsonFormat = printf((info) => {
-    function parseInfo(infoObj) {
-        return _.omit(infoObj, [
-            'err',
-            'hostname',
-            'level',
-            'logger',
-            'message',
-            'meta',
-            'name',
-            'node_env',
-            'service',
-            'stack',
-            'timestamp',
-            'typeFormat',
-            'version'
-        ]);
-    }
-
-    return JSON.stringify({
+    const logObject = {
         service: info.service || '',
         logger: info.logger || 'application-logger',
         hostname: info.hostname || '',
@@ -57,12 +47,17 @@ const jsonFormat = printf((info) => {
                 time: info.timestamp || '',
             },
             event: parseInfo(info),
-        },
-        err: {
+        }
+    };
+
+    if (info.stack) {
+        logObject.err = {
             name: info.name,
             stack: info.stack
-        }
-    });
+        };
+    }
+
+    return JSON.stringify(logObject);
 });
 
 /**
@@ -97,9 +92,28 @@ function configuredFormatter(options = {}) {
     throw new Error(`${typeFormat} is not json or console.`);
 }
 
+function parseInfo(infoObj) {
+    return _.omit(infoObj, [
+        'err',
+        'hostname',
+        'level',
+        'logger',
+        'message',
+        'meta',
+        'name',
+        'node_env',
+        'service',
+        'stack',
+        'timestamp',
+        'typeFormat',
+        'version'
+    ]);
+}
+
 module.exports = {
     addMetaFormat,
     configuredFormatter,
     consoleFormat,
-    jsonFormat
+    jsonFormat,
+    parseInfo
 };
