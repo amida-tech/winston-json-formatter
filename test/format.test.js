@@ -39,14 +39,57 @@ describe('configuredFormatter testing', () => {
             spy = jest.fn((info) => {
                 const sym = Symbol.for('message');
                 const testMsg = info[sym];
+
+                let message;
+                if (info.message instanceof Error) {
+                    // eslint-disable-next-line prefer-destructuring
+                    message = info.message.message;
+                } else if (typeof info.message === 'string') {
+                    // eslint-disable-next-line prefer-destructuring
+                    message = info.message;
+                } else {
+                    message = `\n${JSON.stringify(info.message, null, 2)}`;
+                }
+
+                const stack = info.stack || info.message.stack;
+
+                let event;
+                let eventString;
+                if (info.message instanceof Error) {
+                    event = parseInfo(info);
+
+                    // Unfortunately, in this case...
+                    // ```
+                    // const err = new Error('error message');
+                    // err.code = 'SOME_CODE'
+                    // logger.info(err, { a: 'a', b: 'b' })
+                    // ```
+                    // ...the configured logger members (such as timestamp, service, node_env, etc.)
+                    // are members of info (expected) but also get added as members of info.message
+                    // (completely unexpected), so we have to parseInfo() those out.
+                    const errorAdditionalMembers = parseInfo(info.message);
+                    // eslint-disable-next-line no-restricted-syntax
+                    for (const property of Object.keys(errorAdditionalMembers)) {
+                        event[property] = errorAdditionalMembers[property];
+                    }
+
+                    eventString = JSON.stringify(event, null, 2);
+                } else if (!_.isEmpty(parseInfo(info))) {
+                    event = parseInfo(info);
+                    eventString = JSON.stringify(event, null, 2);
+                } else {
+                    eventString = '';
+                }
+
                 const expectedMessage = util.format(
                     '%s %s %s %s %s',
                     info.timestamp,
                     info.level,
-                    (typeof info.message === 'string') ? info.message : `\n${JSON.stringify(info.message, null, 2)}`,
-                    (info.stack) ? `\n${info.stack}` : '',
-                    (!_.isEmpty(parseInfo(info))) ? `\n${JSON.stringify(parseInfo(info), null, 2)}` : ''
+                    message,
+                    (stack) ? `\n${stack}` : '',
+                    eventString ? `\n${eventString}` : ''
                 );
+
                 expect(testMsg).toEqual(expectedMessage);
             });
             logger.add(new winston.transports.SpyTransport({ spy }));
@@ -94,6 +137,12 @@ describe('configuredFormatter testing', () => {
             done();
         });
 
+        test('it supports signature logger.info(new Error("error message"), { a: "a", b: "b" })', (done) => {
+            options.typeFormat = 'console';
+            testLoggerInfo(options, spy, new Error('error message'), { a: 'a', b: 'b' });
+            done();
+        });
+
         const errWithCode = new Error('error message');
         errWithCode.code = 'SOME_ERROR_CODE';
 
@@ -106,6 +155,12 @@ describe('configuredFormatter testing', () => {
         test('it supports signature logger.info("message", someError), where someError has additional members', (done) => {
             options.typeFormat = 'console';
             testLoggerInfo(options, spy, 'message', errWithCode);
+            done();
+        });
+
+        test('it supports signature logger.info(someError, { a: "a", b: "b" }), where someError has additional members', (done) => {
+            options.typeFormat = 'console';
+            testLoggerInfo(options, spy, errWithCode, { a: 'a', b: 'b' });
             done();
         });
 
@@ -151,6 +206,30 @@ describe('configuredFormatter testing', () => {
                     };
                 }
 
+                if (info.message instanceof Error) {
+                    // Unfortunately, in this case...
+                    // ```
+                    // const err = new Error('error message');
+                    // err.code = 'SOME_CODE'
+                    // logger.info(err, { a: 'a', b: 'b' })
+                    // ```
+                    // ...the configured logger members (such as timestamp, service, node_env, etc.)
+                    // are members of info (expected) but also get added as members of info.message
+                    // (completely unexpected), so we have to parseInfo() those out.
+                    const errorAdditionalMembers = parseInfo(info.message);
+                    // eslint-disable-next-line no-restricted-syntax
+                    for (const property of Object.keys(errorAdditionalMembers)) {
+                        expectedMessage.meta.event[property] = errorAdditionalMembers[property];
+                    }
+
+                    expectedMessage.msg = info.message.message;
+
+                    expectedMessage.err = {
+                        name: info.message.name,
+                        stack: info.message.stack
+                    };
+                }
+
                 expect(parsedTestMsg).toEqual(expectedMessage);
             });
             logger.add(new winston.transports.SpyTransport({ spy }));
@@ -180,6 +259,12 @@ describe('configuredFormatter testing', () => {
             done();
         });
 
+        test('it supports signature logger.info(new Error("error message"), { a: "a", b: "b" })', (done) => {
+            options.typeFormat = 'json';
+            testLoggerInfo(options, spy, new Error('error message'), { a: 'a', b: 'b' });
+            done();
+        });
+
         test('it supports signature logger.info({ name: "some name", stack: "some stack" })', (done) => {
             options.typeFormat = 'json';
             testLoggerInfo(options, spy, { name: 'some name', stack: 'some stack' });
@@ -198,6 +283,12 @@ describe('configuredFormatter testing', () => {
             done();
         });
 
+        test('it supports signature logger.info(new Error("error message"), { a: "a", b: "b" })', (done) => {
+            options.typeFormat = 'json';
+            testLoggerInfo(options, spy, new Error('error message'), { a: 'a', b: 'b' });
+            done();
+        });
+
         const errWithCode = new Error('error message');
         errWithCode.code = 'SOME_ERROR_CODE';
 
@@ -213,11 +304,18 @@ describe('configuredFormatter testing', () => {
             done();
         });
 
+        test('it supports signature logger.info(someError, { a: "a", b: "b" }), where someError has additional members', (done) => {
+            options.typeFormat = 'json';
+            testLoggerInfo(options, spy, errWithCode, { a: 'a', b: 'b' });
+            done();
+        });
+
         test('it checks NODE_ENV for other', (done) => {
             process.env.NODE_ENV = 'test';
             testLoggerInfo(options, spy, 'message', { foo: 'bar' });
             done();
         });
+
         test('it errors when typeFormat is incorrect', (done) => {
             try {
                 options.typeFormat = 'test';
