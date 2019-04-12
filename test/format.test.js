@@ -4,7 +4,7 @@ import _ from 'lodash';
 import SpyTransport from '@chrisalderson/winston-spy'; // eslint-disable-line no-unused-vars
 import util from 'util';
 import winston from 'winston';
-import { configuredFormatter, parseInfo } from '../lib'; // eslint-disable-line import/named
+import { configuredFormatter, parseInfo } from '../src'; // eslint-disable-line import/named
 
 const { createLogger } = winston;
 
