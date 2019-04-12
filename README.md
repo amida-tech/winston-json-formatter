@@ -285,3 +285,40 @@ Error: Error A
   "code": "SOME_CODE"
 }
 ```
+
+## Miscellaneous Goodies
+
+This repo also provides a function to check if a particular log level is greater than the currently configured log level.
+
+Example useage:
+
+```js
+// In some service...
+
+// config.js
+module.exports = {
+    logLevel: 'info',
+}
+
+// FancyCustomError.js
+import { initLogLevelGte } from 'winston-json-formatter'
+const config = require('../config/index.js')
+const logLevelGte = initLogLevelGte(config.logLevel)
+
+class FancyCustomError extends Error {
+  constructor(rootErrorThatCouldHaveSecretStuffInIt, message, foo, bar) {
+    super()
+
+    this.message = message
+
+    if (logLevelGte('debug')) {
+        this.rootErrorThatCouldHaveSecretStuffInIt = rootErrorThatCouldHaveSecretStuffInIt
+    }
+  }
+}
+
+// someFile.js
+logger.info(new FancyCustomError(err, 'Error creating user'))
+
+// When the configured log level is 'info', you would see logged only 'Error creating user', but when the configured log level is 'debug', you would see all the guts and glory.
+```
