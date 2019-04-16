@@ -1,6 +1,7 @@
 import winston from 'winston';
 import _ from 'lodash';
 import os from 'os';
+import util from 'util';
 
 const { format } = winston;
 const {
@@ -21,28 +22,60 @@ const addMetaFormat = format((info, opts) => {
     return _.defaults(info, options);
 });
 
-const consoleFormat = printf(info => `${info.timestamp} ${info.level}: ${info.message}`);
-
-const jsonFormat = printf((info) => {
-    function parseInfo(infoObj) {
-        return _.omit(infoObj, [
-            'err',
-            'hostname',
-            'level',
-            'logger',
-            'message',
-            'meta',
-            'name',
-            'node_env',
-            'service',
-            'stack',
-            'timestamp',
-            'typeFormat',
-            'version'
-        ]);
+const consoleFormat = printf((info) => {
+    let message;
+    if (info.message instanceof Error) {
+        // eslint-disable-next-line prefer-destructuring
+        message = info.message.message;
+    } else if (typeof info.message === 'string') {
+        // eslint-disable-next-line prefer-destructuring
+        message = info.message;
+    } else {
+        message = `\n${JSON.stringify(info.message, null, 2)}`;
     }
 
-    return JSON.stringify({
+    const stack = info.stack || info.message.stack;
+
+    let event;
+    let eventString;
+    if (info.message instanceof Error) {
+        event = parseInfo(info);
+
+        // Unfortunately, in this case...
+        // ```
+        // const err = new Error('error message');
+        // err.code = 'SOME_CODE'
+        // logger.info(err, { a: 'a', b: 'b' })
+        // ```
+        // ...the configured logger members (such as timestamp, service, node_env, etc.)
+        // are members of info (expected) but also get added as members of info.message
+        // (completely unexpected), so we have to parseInfo() those out.
+        const errorAdditionalMembers = parseInfo(info.message);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const property of Object.keys(errorAdditionalMembers)) {
+            event[property] = errorAdditionalMembers[property];
+        }
+
+        eventString = JSON.stringify(event, null, 2);
+    } else if (!_.isEmpty(parseInfo(info))) {
+        event = parseInfo(info);
+        eventString = JSON.stringify(event, null, 2);
+    } else {
+        eventString = '';
+    }
+
+    return util.format(
+        '%s %s %s %s %s',
+        info.timestamp,
+        info.level,
+        message,
+        (stack) ? `\n${stack}` : '',
+        eventString ? `\n${eventString}` : ''
+    );
+});
+
+const jsonFormat = printf((info) => {
+    const logObject = {
         service: info.service || '',
         logger: info.logger || 'application-logger',
         hostname: info.hostname || '',
@@ -57,12 +90,41 @@ const jsonFormat = printf((info) => {
                 time: info.timestamp || '',
             },
             event: parseInfo(info),
-        },
-        err: {
+        }
+    };
+
+    if (info.stack) {
+        logObject.err = {
             name: info.name,
             stack: info.stack
+        };
+    }
+
+    if (info.message instanceof Error) {
+        // Unfortunately, in this case...
+        // ```
+        // const err = new Error('error message');
+        // err.code = 'SOME_CODE'
+        // logger.info(err, { a: 'a', b: 'b' })
+        // ```
+        // ...the configured logger members (such as timestamp, service, node_env, etc.)
+        // are members of info (expected) but also get added as members of info.message
+        // (completely unexpected), so we have to parseInfo() those out.
+        const errorAdditionalMembers = parseInfo(info.message);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const property of Object.keys(errorAdditionalMembers)) {
+            logObject.meta.event[property] = errorAdditionalMembers[property];
         }
-    });
+
+        logObject.msg = info.message.message;
+
+        logObject.err = {
+            name: info.message.name,
+            stack: info.message.stack
+        };
+    }
+
+    return JSON.stringify(logObject);
 });
 
 /**
@@ -97,9 +159,49 @@ function configuredFormatter(options = {}) {
     throw new Error(`${typeFormat} is not json or console.`);
 }
 
+function parseInfo(infoObj) {
+    return _.omit(infoObj, [
+        'err',
+        'hostname',
+        'level',
+        'logger',
+        'message',
+        'meta',
+        'name',
+        'node_env',
+        'service',
+        'stack',
+        'timestamp',
+        'typeFormat',
+        'version'
+    ]);
+}
+
+function initLogLevelGte(configuredLogLevel = 'info') {
+    // Like JSON.parse(), this function and has the ability to throw errors.
+    // Therefore calls to it must be wrapped in try/catch.
+    return function logLevelGte(checkLogLevel) {
+        const validLogLevels = Object.keys(winston.config.npm.levels);
+
+        // TODO: Improve checking via using some sort of typing instead??
+        if (validLogLevels.indexOf(checkLogLevel) === -1) {
+            // eslint-disable-next-line max-len
+            throw new Error(`logLevelGte(): 'checkLogLevel' is ${checkLogLevel}, but it must be one of the valid levels ('error', 'warn', 'info', 'verbose', 'debug', 'silly').`);
+        }
+
+        if (validLogLevels.indexOf(configuredLogLevel) >= validLogLevels.indexOf(checkLogLevel)) {
+            return true;
+        }
+
+        return false;
+    };
+}
+
 module.exports = {
     addMetaFormat,
     configuredFormatter,
     consoleFormat,
-    jsonFormat
+    jsonFormat,
+    parseInfo,
+    initLogLevelGte
 };
