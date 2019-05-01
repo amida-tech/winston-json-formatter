@@ -3,7 +3,7 @@
   "description": "A Winston JSON Formatter",
   "main": "lib/index.js",
   "repository": "amida-tech/winston-json-formatter",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "version": "0.10.0",
   "publishConfig": {
     "access": "public"
