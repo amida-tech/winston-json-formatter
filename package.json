@@ -1,10 +1,10 @@
 {
-  "name": "winston-json-formatter",
+  "name": "@amida-tech/winston-json-formatter",
   "description": "A Winston JSON Formatter",
   "main": "lib/index.js",
-  "repository": "amida-tech/winston-json-formatter",
+  "repository": "https://github.com/amida-tech/winston-json-formatter.git",
   "license": "Apache-2.0",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "publishConfig": {
     "access": "public"
   },
@@ -13,7 +13,7 @@
     "clean": "rimraf coverage lib",
     "lint": "eslint src/ test/",
     "prepublish": "yarn build",
-    "test": "yarn install && jest",
+    "test": "jest",
     "test:coverage": "yarn test --coverage"
   },
   "keywords": [
@@ -26,10 +26,7 @@
     "npm": ">=5.6.0",
     "yarn": ">=1.5.1"
   },
-  "author": {
-    "name": "Morgan Peters",
-    "email": "morgan@amida.com"
-  },
+  "author": "Morgan Peters <morgan@amida.com>",
   "contributors": [
     {
       "name": "Ryan Harrison",
@@ -41,25 +38,24 @@
     }
   ],
   "dependencies": {
-    "lodash": "^4.17.11",
-    "os": "^0.1.1",
-    "winston": "^3.2.1"
+    "lodash": "^4.17.21",
+    "os": "^0.1.2",
+    "winston": "^3.8.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.1.6",
-    "@babel/node": "^7.0.0",
-    "@babel/preset-env": "^7.1.6",
+    "@babel/cli": "^7.18.9",
+    "@babel/core": "^7.18.9",
+    "@babel/node": "^7.18.9",
+    "@babel/preset-env": "^7.18.9",
     "@chrisalderson/winston-spy": "^1.0.2",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^23.6.0",
-    "eslint": "^5.9.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "jest": "^23.6.0",
-    "regenerator-runtime": "^0.13.1",
-    "rimraf": "^2.6.2",
-    "sinon": "^7.1.1"
+    "babel-jest": "^28.1.3",
+    "eslint": "^8.20.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "jest": "^28.1.3",
+    "regenerator-runtime": "^0.13.9",
+    "rimraf": "^3.0.2",
+    "sinon": "^14.0.0"
   },
   "jest": {
     "automock": false,
@@ -74,5 +70,6 @@
       "/coverage/",
       "/dist/"
     ]
-  }
+  },
+  "private": false
 }
