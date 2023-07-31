@@ -12,6 +12,7 @@ pids
 .idea
 
 # OS generated files
+.dccache
 .DS_Store
 .DS_Store?
 ._*
